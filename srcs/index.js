@@ -31,7 +31,7 @@ class Mdb {
 
 	// * new player
 	async addPlayer(username, img) {
-		if (await this.getPlayerId(username)) throw new Error('Player already exists');
+		if (await this.getPlayer(username)) throw new Error('Player already exists');
 		const stmt = await this.#db.prepare('INSERT INTO players(player_hash, username, img) VALUES(?, ?, ?)');
 		const hash = generateHash(username);
 		await stmt.run(hash, username, img);
@@ -46,11 +46,11 @@ class Mdb {
 	}
 
 	// * get player id
-	async getPlayerId(username) {
+	async getPlayer(username) {
 		const stmt = await this.#db.prepare('SELECT player_id FROM players WHERE username = ?');
-		const id = await stmt.get(username);
+		const user = await stmt.get(username);
 		stmt.finalize();
-		return id;
+		return user;
 	}
 
 	// * select all player
@@ -75,7 +75,7 @@ class Mdb {
 	}
 
 	async getAllOtherPlayersWithInviteStatus(username) {
-		const user = await this.getPlayerId(username);
+		const user = await this.getPlayer(username);
 		if (!user) throw new Error("Player doesn't exists");
 		const stmt = await this.#db.prepare(
 			'SELECT p.username, p.img, IFNULL(( \
@@ -96,8 +96,8 @@ class Mdb {
 	// ? invite_status manipulation queries
 	// * create invitation
 	async createInvitation(sender, recipient) {
-		const senderUser = await this.getPlayerId(sender);
-		const recipientUser = await this.getPlayerId(recipient);
+		const senderUser = await this.getPlayer(sender);
+		const recipientUser = await this.getPlayer(recipient);
 		if (!senderUser || !recipientUser) throw new Error('No such player');
 		if (senderUser.player_id === recipient.player_id) throw new Error('Invited yourself, clever huh!!');
 		{
@@ -112,8 +112,8 @@ class Mdb {
 	}
 	// * update accepted invitation
 	async acceptInvitation(sender, recipient) {
-		const senderUser = await this.getPlayerId(sender);
-		const recipientUser = await this.getPlayerId(recipient);
+		const senderUser = await this.getPlayer(sender);
+		const recipientUser = await this.getPlayer(recipient);
 		if (!senderUser || !recipientUser) throw new Error("Player doesn't exists");
 		{
 			const tstmt = await this.#db.prepare('SELECT id FROM invitations WHERE sender_id = ? AND recipient_id = ?');
@@ -126,8 +126,8 @@ class Mdb {
 
 	// * update declined invitation
 	async declineInvitation(sender, recipient) {
-		const senderUser = await this.getPlayerId(sender);
-		const recipientUser = await this.getPlayerId(recipient);
+		const senderUser = await this.getPlayer(sender);
+		const recipientUser = await this.getPlayer(recipient);
 		if (!senderUser || !recipientUser) throw new Error("Player doesn't exists");
 		const stmt = await this.#db.prepare('UPDATE invitations SET invite_status = "declined" WHERE invite_status = "pending" AND sender_id = ? AND recipient_id = ?');
 		await stmt.run(senderUser.player_id, recipientUser.player_id);
@@ -152,8 +152,8 @@ class Mdb {
 
 	// * cancel invitation
 	async cancelInvitation(sender, recipient) {
-		const senderUser = await this.getPlayerId(sender);
-		const recipientUser = await this.getPlayerId(recipient);
+		const senderUser = await this.getPlayer(sender);
+		const recipientUser = await this.getPlayer(recipient);
 		if (!senderUser || !recipientUser) throw new Error("Player doesn't exists");
 		const stmt = await this.#db.prepare('DELETE FROM invitations WHERE sender_id = ? AND recipient_id = ?');
 		await stmt.run(senderUser.player_id, recipientUser.player_id);
@@ -162,7 +162,7 @@ class Mdb {
 
 	// * cancel all invitations
 	async cancelAllUserInvitations(sender) {
-		const senderUser = await this.getPlayerId(sender);
+		const senderUser = await this.getPlayer(sender);
 		if (!senderUser) throw new Error("Player doesn't exists");
 		const stmt = await this.#db.prepare('DELETE FROM invitations WHERE sender_id = ? OR recipient_id = ?');
 		await stmt.run(senderUser.player_id, senderUser.player_id);
@@ -171,8 +171,8 @@ class Mdb {
 
 	// * delete a rejected invitation for a specific user
 	async deleteRejectedInvitation(sender, recipient) {
-		const senderUser = await this.getPlayerId(sender);
-		const recipientUser = await this.getPlayerId(recipient);
+		const senderUser = await this.getPlayer(sender);
+		const recipientUser = await this.getPlayer(recipient);
 		if (!senderUser || !recipientUser) throw new Error("Player doesn't exists");
 		const stmt = await this.#db.prepare(
 			'DELETE FROM invitations WHERE invite_status = "declined" AND sender_id = ? AND recipient_id = ?'
@@ -183,7 +183,7 @@ class Mdb {
 
 	// * delete all rejected invitation for a specific user
 	async deleteAllRejectedInvitation(sender) {
-		const senderUser = await this.getPlayerId(sender);
+		const senderUser = await this.getPlayer(sender);
 		if (!senderUser) throw new Error("Player doesn't exists");
 		const stmt = await this.#db.prepare('DELETE FROM invitations WHERE invite_status = "declined" AND sender_id = ?');
 		await stmt.run(senderUser.player_id);
@@ -195,7 +195,7 @@ class Mdb {
 
 	// * select invitations that a specific user sent to specific user
 	async getUserSentInvitations(username) {
-		const user = await this.getPlayerId(username);
+		const user = await this.getPlayer(username);
 		if (!user) throw new Error("Player doesn't exists");
 		const stmt = await this.#db.prepare(
 			'SELECT ( \
