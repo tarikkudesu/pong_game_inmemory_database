@@ -12,11 +12,17 @@
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
+		"@types/lodash": "^4.17.16",
+		"@types/node": "^22.15.18",
+		"@types/ws": "^8.18.1",
 		"eslint": "^9.26.0",
 		"nodemon": "^3.1.10",
 		"typescript": "^5.8.3"
 	},
 	"dependencies": {
+		"@fastify/websocket": "^11.0.2",
+		"fastify": "^5.3.3",
+		"fastify-websocket": "^4.3.0",
 		"lodash": "^4.17.21"
 	}
 }
