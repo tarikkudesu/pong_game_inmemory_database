@@ -1,23 +1,28 @@
 {
 	"name": "pong_game_inmemory_database",
 	"version": "1.0.0",
-	"type": "module",
-	"description": "As a preperation for the transcendence project, this repositry will hold the an abstraction of the serverside game inmemory database.",
+	"description": "",
 	"main": "index.js",
+	"type": "module",
 	"scripts": {
-		"dev": "eslint . && nodemon index.js"
+		"build": "tsc",
+		"dev": "nodemon"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
-	"dependencies": {
-		"sqlite": "^5.1.1",
-		"sqlite3": "^5.1.7"
-	},
 	"devDependencies": {
-		"@eslint/js": "^9.26.0",
+		"@types/lodash": "^4.17.16",
+		"@types/node": "^22.15.18",
+		"@types/ws": "^8.18.1",
 		"eslint": "^9.26.0",
-		"globals": "^16.1.0",
-		"nodemon": "^3.1.10"
+		"nodemon": "^3.1.10",
+		"typescript": "^5.8.3"
+	},
+	"dependencies": {
+		"@fastify/websocket": "^11.0.2",
+		"fastify": "^5.3.3",
+		"fastify-websocket": "^4.3.0",
+		"lodash": "^4.17.21"
 	}
 }
