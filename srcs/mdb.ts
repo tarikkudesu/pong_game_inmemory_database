@@ -44,11 +44,9 @@ class Mdb {
 	private invitations: Map<string, Invitation> = new Map();
 	private playersOnline: Map<string, Player> = new Map();
 	constructor() {}
-
 	/****************************************************************************************************************
 	 *                                        PLAYERS TABLE MANIPULATION                                            *
 	 ****************************************************************************************************************/
-
 	// * check if Player exists
 	checkIfPlayerExists(username: string): boolean {
 		if (this.playersOnline.get(username)) return true;
@@ -58,7 +56,6 @@ class Mdb {
 		if (this.playersOnline.get(sender + recipient)) return true;
 		return false;
 	}
-
 	// * new player
 	addPlayer(username: string, img: string, socket?: WebSocket) {
 		if (this.checkIfPlayerExists(username)) throw new Error('Player already exists');
@@ -66,19 +63,16 @@ class Mdb {
 		this.playersOnline.set(username, new Player(username, img));
 		return hash;
 	}
-
 	// * remove player
 	removePlayer(username: string) {
 		this.playersOnline.delete(username);
 	}
-
 	// * get player id
 	getPlayer(username: string): Player {
 		const player: Player | undefined = this.playersOnline.get(username);
 		if (!player) throw new Error("Player doesn't exists");
 		return player;
 	}
-
 	// * select username + img player
 	getAllPlayers() {
 		console.warn('getAllPlayers() is not ideal. Use getAllOtherPlayersWithInviteStatus() instead.');
@@ -87,7 +81,6 @@ class Mdb {
 			img: ele.img,
 		}));
 	}
-
 	// * select username + img from all players but the user
 	getAllOtherPlayers(username: string) {
 		console.warn('getAllPlayers() is not ideal. Use getAllOtherPlayersWithInviteStatus() instead.');
@@ -102,25 +95,30 @@ class Mdb {
 			})
 			.filter(Boolean);
 	}
-
 	// TODO: Add invitations status
 	getAllOtherPlayersWithInviteStatus(username: string) {
+		const player: Player = this.getPlayer(username);
 		return [...this.playersOnline.values()]
 			.map((ele) => {
-				if (ele.username !== username)
+				if (ele.username !== username) {
+					let invite_status: string = 'none';
+					try {
+						const invite = this.getInvitation(player, ele);
+						invite_status = invite.invite_status;
+					} catch (err) {}
 					return {
 						username: ele.username,
 						img: ele.img,
+						invite_status,
 					};
+				}
 				return undefined;
 			})
 			.filter(Boolean);
 	}
-
 	/****************************************************************************************************************
 	 *                                      INVITATIONS TABLE MANIPULATION                                          *
 	 ****************************************************************************************************************/
-
 	// ? invite_status manipulation queries
 	// * create invitation
 	createInvitation(sender: string, recipient: string): void {
@@ -131,7 +129,6 @@ class Mdb {
 			throw new Error('stop trying to send invitation to this player, he already got one from you');
 		this.invitations.set(sen.username + rec.username, new Invitation(sen.username, rec.username, rec.img));
 	}
-
 	getAllInvitations() {
 		return [...this.invitations.values()].map((ele) => ({
 			sender: ele.sender,
@@ -140,7 +137,6 @@ class Mdb {
 			img: ele.img,
 		}));
 	}
-
 	getAllPlayerInvitations(username: string) {
 		if (!this.checkIfPlayerExists(username)) throw new Error("player doesn't exist");
 		return [...this.invitations.values()]
@@ -156,13 +152,11 @@ class Mdb {
 			})
 			.filter(Boolean);
 	}
-
 	getInvitation(sender: Player, recipient: Player): Invitation {
 		const invite: Invitation | undefined = this.invitations.get(sender.username + recipient.username);
 		if (!invite) throw new Error(sender.username + ', ' + recipient.username + ': no such invitation');
 		return invite;
 	}
-
 	// * update accepted invitation
 	acceptInvitation(sender: string, recipient: string): void {
 		const sen: Player = this.getPlayer(sender);
@@ -171,7 +165,6 @@ class Mdb {
 		const invite: Invitation = this.getInvitation(sen, rec);
 		if (invite.invite_status === 'pending') invite.invite_status = 'accepted';
 	}
-
 	// * update declined invitation
 	declineInvitation(sender: string, recipient: string): void {
 		const sen: Player = this.getPlayer(sender);
@@ -180,7 +173,6 @@ class Mdb {
 		const invite: Invitation = this.getInvitation(sen, rec);
 		if (invite.invite_status === 'pending') invite.invite_status = 'declined';
 	}
-
 	// * delete all expired invitation
 	deleteExpiredInvitations() {
 		console.log([...this.invitations.values()]);
@@ -189,26 +181,22 @@ class Mdb {
 		});
 		console.log([...this.invitations.values()]);
 	}
-
 	// * cancel invitation
 	cancelInvitation(sender: string, recipient: string): void {
 		const sen: Player = this.getPlayer(sender);
 		const rec: Player = this.getPlayer(recipient);
 		this.invitations.delete(sen.username + rec.username);
 	}
-
 	// * cancel all player invitations
 	cancelAllPlayerInvitations(sender: string) {
 		this.getAllPlayerInvitations(sender).forEach((invite) => {
 			this.invitations.delete(sender + invite?.recipient);
 		});
 	}
-
 	// * delete a rejected invitation for a specific user
 	deleteRejectedInvitation(sender: string, recipient: string) {
 		this.cancelInvitation(sender, recipient);
 	}
-
 	// * delete all rejected invitation for a specific user
 	deleteAllRejectedInvitations(sender: string): void {
 		[...this.invitations.values()].forEach((invite) => {
@@ -217,7 +205,6 @@ class Mdb {
 			}
 		});
 	}
-
 	deleteAllInvitations(): void {
 		console.warn("Deleting all invitations, this isn' a nice thing to do my friend, are you depressed or what");
 		this.invitations.clear();

@@ -109,6 +109,11 @@ console.log('TEST: get all other online players');
 console.log(mdb.getAllOtherPlayers('tarikkudesu'));
 console.log('========================================================');
 
+// TODO: get all other online players with invite status
+console.log('TEST: get all other online players with invite status');
+console.log(mdb.getAllOtherPlayersWithInviteStatus('tarikkudesu'));
+console.log('========================================================');
+
 // TODO: delete players
 console.log('TEST: delete players');
 mdb.removePlayer('tarikkudesu');
@@ -127,33 +132,33 @@ mdb.deleteAllInvitations();
 
 // ! as of now all tests have been passed
 
-mdb.addPlayer('tarikkudesu', 'img.img');
-mdb.addPlayer('ooulcaid', 'img.img');
-mdb.addPlayer('omghazi', 'img.img');
-mdb.addPlayer('ezahiri', 'img.img');
-mdb.addPlayer('kol', 'img.img');
-mdb.addPlayer('klaus', 'img.img');
-mdb.addPlayer('elijah', 'img.img');
-mdb.addPlayer('rebekah', 'img.img');
+// mdb.addPlayer('tarikkudesu', 'img.img');
+// mdb.addPlayer('ooulcaid', 'img.img');
+// mdb.addPlayer('omghazi', 'img.img');
+// mdb.addPlayer('ezahiri', 'img.img');
+// mdb.addPlayer('kol', 'img.img');
+// mdb.addPlayer('klaus', 'img.img');
+// mdb.addPlayer('elijah', 'img.img');
+// mdb.addPlayer('rebekah', 'img.img');
 
-console.log(mdb.getAllPlayers());
+// console.log(mdb.getAllPlayers());
 
-console.log(mdb.getAllOtherPlayers('tarikkudesu'));
+// console.log(mdb.getAllOtherPlayers('tarikkudesu'));
 
-mdb.createInvitation('tarikkudesu', 'elijah');
-mdb.createInvitation('tarikkudesu', 'rebekah');
-mdb.createInvitation('tarikkudesu', 'klaus');
-mdb.createInvitation('tarikkudesu', 'ooulcaid');
-mdb.createInvitation('omghazi', 'ooulcaid');
+// mdb.createInvitation('tarikkudesu', 'elijah');
+// mdb.createInvitation('tarikkudesu', 'rebekah');
+// mdb.createInvitation('tarikkudesu', 'klaus');
+// mdb.createInvitation('tarikkudesu', 'ooulcaid');
+// mdb.createInvitation('omghazi', 'ooulcaid');
 
-mdb.acceptInvitation('tarikkudesu', 'elijah');
-mdb.declineInvitation('tarikkudesu', 'klaus');
+// mdb.acceptInvitation('tarikkudesu', 'elijah');
+// mdb.declineInvitation('tarikkudesu', 'klaus');
 
-console.log(mdb.getAllInvitations());
-mdb.cancelAllPlayerInvitations('tarikkudesu');
-console.log(mdb.getAllInvitations());
+// console.log(mdb.getAllInvitations());
+// mdb.cancelAllPlayerInvitations('tarikkudesu');
+// console.log(mdb.getAllInvitations());
 
-setTimeout(() => {
-	mdb.createInvitation('ooulcaid', 'tarikkudesu');
-	mdb.deleteExpiredInvitations();
-}, 60000);
+// setTimeout(() => {
+// 	mdb.createInvitation('ooulcaid', 'tarikkudesu');
+// 	mdb.deleteExpiredInvitations();
+// }, 60000);
