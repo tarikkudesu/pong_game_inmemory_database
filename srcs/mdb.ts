@@ -40,10 +40,58 @@ export class Player {
 	}
 }
 
+export class Room {
+	public player: Player;
+	public opponent: Player;
+	// public pong: Pong;
+	public playerScore: number = 0;
+	public opponentScore: number = 0;
+	constructor(player: Player, opponent: Player) {
+		this.player = player;
+		this.opponent = opponent;
+	}
+}
+
 class Mdb {
 	private invitations: Map<string, Invitation> = new Map();
-	private playersOnline: Map<string, Player> = new Map();
+	public playersOnline: Map<string, Player> = new Map();
+	private rooms: Map<string, Room> = new Map();
+
 	constructor() {}
+	/*****************************************************************************************************************
+	 *                                           PLAYER ROOMS MANIPULATION                                           *
+	 *****************************************************************************************************************/
+
+	// * check if room exists
+	checkIfRoomExists(player: string, opponent: string): boolean {
+		if (this.rooms.get(player + opponent)) return true;
+		if (this.rooms.get(opponent + player)) return true;
+		return false;
+	}
+
+	// * check if player is in a room
+	checkIfPlayerIsInARoom(username: string): boolean {
+		const arr: Room[] = [...this.rooms.values()];
+		for (let i = 0; i < arr.length; i++) if (arr[i].player.username === username || arr[i].opponent.username === username) return true;
+		return false;
+	}
+
+	// * add room
+	addRoom(player: Player, opponent: Player): Room {
+		if (player.username === opponent.username) throw new Error('trying to play with yourself? clever huh!');
+		if (!this.checkIfPlayerExists(player.username)) throw new Error(player.username + ": player doesn't exist");
+		if (!this.checkIfPlayerExists(opponent.username)) throw new Error(opponent.username + ": player doesn't exist");
+		if (this.checkIfRoomExists(player.username, opponent.username)) throw new Error('room already exists');
+		const room: Room = new Room(player, opponent);
+		this.rooms.set(player.username + opponent.username, room);
+		return room;
+	}
+	// * remove room
+	removeRoom(player: string, opponent: string): void {
+		if (!this.checkIfRoomExists(player, opponent)) throw new Error('room does not exist');
+		this.rooms.delete(player + opponent);
+	}
+
 	/****************************************************************************************************************
 	 *                                        PLAYERS TABLE MANIPULATION                                            *
 	 ****************************************************************************************************************/
